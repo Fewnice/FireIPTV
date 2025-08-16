@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User List</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    /* Search Bar */
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 10px 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    }
+
+    .search-box i {
+      color: #888;
+      margin-right: 10px;
+      font-size: 18px;
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    thead {
+      background: #1f1f1f;
+    }
+
+    thead th {
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 15px;
+      color: #bbb;
+    }
+
+    tbody tr {
+      background: #181818;
+      border-bottom: 1px solid #2a2a2a;
+      transition: 0.2s;
+    }
+
+    tbody tr:hover {
+      background: #222;
+    }
+
+    tbody td {
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    .status {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .status.active {
+      background: #1e4620;
+      color: #4caf50;
+    }
+
+    .status.inactive {
+      background: #462020;
+      color: #e53935;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-right: 5px;
+      transition: 0.3s;
+    }
+
+    .btn-ban {
+      background: #e53935;
+      color: #fff;
+    }
+    .btn-ban:hover {
+      background: #c62828;
+    }
+
+    .btn-renew {
+      background: #1976d2;
+      color: #fff;
+    }
+    .btn-renew:hover {
+      background: #1565c0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>User Management</h2>
+
+    <!-- Search Bar -->
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search users...">
+    </div>
+
+    <!-- User List -->
+    <table id="userTable">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Password</th>
+          <th>Exp Date</th>
+          <th>Reg Date</th>
+          <th>Last Seen</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ahmed</td>
+          <td>••••••</td>
+          <td>2025-12-01</td>
+          <td>2025-01-10</td>
+          <td>2025-08-10</td>
+          <td><span class="status active">Active</span></td>
+          <td>
+            <button class="btn btn-ban"><i class="fas fa-ban"></i> Ban</button>
+            <button class="btn btn-renew"><i class="fas fa-sync"></i> Renew</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Mohamed</td>
+          <td>••••••</td>
+          <td>2025-11-20</td>
+          <td>2025-02-05</td>
+          <td>2025-08-15</td>
+          <td><span class="status inactive">Inactive</span></td>
+          <td>
+            <button class="btn btn-ban"><i class="fas fa-ban"></i> Ban</button>
+            <button class="btn btn-renew"><i class="fas fa-sync"></i> Renew</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const table = document.getElementById("userTable").getElementsByTagName("tbody")[0];
+
+    searchInput.addEventListener("keyup", function() {
+      let filter = searchInput.value.toLowerCase();
+      let rows = table.getElementsByTagName("tr");
+
+      for (let i = 0; i < rows.length; i++) {
+        let cells = rows[i].getElementsByTagName("td");
+        let match = false;
+
+        for (let j = 0; j < cells.length; j++) {
+          if (cells[j]) {
+            let textValue = cells[j].textContent || cells[j].innerText;
+            if (textValue.toLowerCase().indexOf(filter) > -1) {
+              match = true;
+              break;
+            }
+          }
+        }
+
+        rows[i].style.display = match ? "" : "none";
+      }
+    });
+  </script>
+</body>
+</html>
