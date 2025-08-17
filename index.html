@@ -1,216 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User List</title>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>User List — Simple Badges & Modal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: #eee;
-      margin: 0;
-      padding: 20px;
+    :root{
+      --bg:#0f1113;
+      --card:#141516;
+      --muted:#9da3a8;
+      --accent:#21a1d1; /* single badge color */
+      --glass-border: rgba(255,255,255,0.04);
     }
-
-    .container {
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #fff;
-    }
-
-    /* Search Bar */
-    .search-box {
-      display: flex;
-      align-items: center;
-      background: #1e1e1e;
-      border-radius: 10px;
-      padding: 10px 15px;
-      margin-bottom: 20px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-    }
-
-    .search-box i {
-      color: #888;
-      margin-right: 10px;
-      font-size: 18px;
-    }
-
-    .search-box input {
-      flex: 1;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: #fff;
-      font-size: 16px;
-    }
-
+    /* Base */
+    body{background:var(--bg);color:#eaeaea;margin:0;font-family:Inter,Segoe UI,Arial;padding:20px}
+    .container{max-width:1100px;margin:0 auto}
+    h2{margin:0 0 12px 0;font-size:20px}
+    .top-row{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    .search{flex:1;display:flex;align-items:center;background:#131415;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border)}
+    .search input{background:transparent;border:0;outline:0;color:#fff;font-size:15px;width:100%}
+    .btn{background:linear-gradient(90deg,#1596bc,#3fb0e3);color:#fff;padding:9px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
     /* Table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      overflow: hidden;
-      border-radius: 12px;
-    }
-
-    thead {
-      background: #1f1f1f;
-    }
-
-    thead th {
-      padding: 14px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 15px;
-      color: #bbb;
-    }
-
-    tbody tr {
-      background: #181818;
-      border-bottom: 1px solid #2a2a2a;
-      transition: 0.2s;
-    }
-
-    tbody tr:hover {
-      background: #222;
-    }
-
-    tbody td {
-      padding: 12px 14px;
-      font-size: 14px;
-      color: #ddd;
-    }
-
-    .status {
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: bold;
-    }
-
-    .status.active {
-      background: #1e4620;
-      color: #4caf50;
-    }
-
-    .status.inactive {
-      background: #462020;
-      color: #e53935;
-    }
-
-    /* Buttons */
-    .btn {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      cursor: pointer;
-      margin-right: 5px;
-      transition: 0.3s;
-    }
-
-    .btn-ban {
-      background: #e53935;
-      color: #fff;
-    }
-    .btn-ban:hover {
-      background: #c62828;
-    }
-
-    .btn-renew {
-      background: #1976d2;
-      color: #fff;
-    }
-    .btn-renew:hover {
-      background: #1565c0;
-    }
+    table{width:100%;border-collapse:collapse;margin-top:6px}
+    thead th{background:#151617;padding:12px;text-align:left;color:var(--muted);font-weight:600}
+    tbody td{background:var(--card);padding:12px;border-bottom:1px solid #1b1c1d;color:#e6e6e6}
+    tbody tr:hover td{background:#171818}
+    /* Simple single-color badge */
+    .user-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;font-size:12px;color:#fff;background:var(--accent);margin-left:8px}
+    .user-badge.old{opacity:0.65} /* same color but slightly faded */
+    .status{padding:6px 8px;border-radius:8px;font-weight:700;font-size:13px;background:transparent;border:1px solid var(--glass-border);color:#cfeffb}
+    .actions button{margin-right:6px;padding:6px 9px;border-radius:8px;border:0;cursor:pointer}
+    .ban{background:#e04f4f;color:#fff}
+    .renew{background:#3b82f6;color:#fff}
+    /* Modal (centered) */
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999;visibility:hidden;opacity:0;transition:all .15s}
+    .backdrop.show{visibility:visible;opacity:1}
+    .modal{width:100%;max-width:520px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border:1px solid var(--glass-border);border-radius:12px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,0.7)}
+    .modal h3{margin:0 0 8px 0;font-size:18px}
+    .grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    .grid input{padding:10px;border-radius:8px;border:1px solid #222;background:#0f1112;color:#fff;outline:none}
+    .modal .row{display:flex;gap:8px}
+    .modal .row .half{flex:1}
+    .modal .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+    .btn-ghost{background:transparent;border:1px solid var(--glass-border);color:#cfeffb;padding:8px 12px;border-radius:8px;cursor:pointer}
+    @media (max-width:520px){.top-row{flex-direction:column;align-items:stretch}.btn{width:100%}}
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>User Management</h2>
-
-    <!-- Search Bar -->
-    <div class="search-box">
-      <i class="fas fa-search"></i>
-      <input type="text" id="searchInput" placeholder="Search users...">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px">
+      <h2>User Management</h2>
+      <div style="color:var(--muted);font-size:13px">Simple badges • Add user modal</div>
     </div>
 
-    <!-- User List -->
-    <table id="userTable">
+    <div class="top-row">
+      <div class="search" role="search">
+        <i class="fa fa-search" style="margin-right:8px;color:#8a98a2"></i>
+        <input id="searchInput" placeholder="Search username, dates, status..." />
+      </div>
+      <button id="openModal" class="btn"><i class="fa fa-plus" style="margin-right:8px"></i> Add user</button>
+    </div>
+
+    <table id="userTable" aria-live="polite">
       <thead>
         <tr>
-          <th>Username</th>
-          <th>Password</th>
-          <th>Exp Date</th>
-          <th>Reg Date</th>
-          <th>Last Seen</th>
-          <th>Status</th>
-          <th>Actions</th>
+          <th>Username</th><th>Password</th><th>Exp Date</th><th>Reg Date</th><th>Last Seen</th><th>Status</th><th>Actions</th>
         </tr>
       </thead>
       <tbody>
+        <!-- existing rows (example) -->
         <tr>
-          <td>Ahmed</td>
+          <td class="u-name">Ahmed <span class="user-badge old">OLD</span></td>
           <td>••••••</td>
-          <td>2025-12-01</td>
-          <td>2025-01-10</td>
-          <td>2025-08-10</td>
-          <td><span class="status active">Active</span></td>
-          <td>
-            <button class="btn btn-ban"><i class="fas fa-ban"></i> Ban</button>
-            <button class="btn btn-renew"><i class="fas fa-sync"></i> Renew</button>
+          <td class="u-exp">2025-12-01</td>
+          <td class="u-reg">2025-01-10</td>
+          <td class="u-last">2025-08-10</td>
+          <td><span class="status">Active</span></td>
+          <td class="actions">
+            <button class="ban"><i class="fa fa-ban"></i></button>
+            <button class="renew"><i class="fa fa-sync"></i></button>
           </td>
         </tr>
+
         <tr>
-          <td>Mohamed</td>
+          <td class="u-name">Mohamed <span class="user-badge old">OLD</span></td>
           <td>••••••</td>
-          <td>2025-11-20</td>
-          <td>2025-02-05</td>
-          <td>2025-08-15</td>
-          <td><span class="status inactive">Inactive</span></td>
-          <td>
-            <button class="btn btn-ban"><i class="fas fa-ban"></i> Ban</button>
-            <button class="btn btn-renew"><i class="fas fa-sync"></i> Renew</button>
+          <td class="u-exp">2025-11-20</td>
+          <td class="u-reg">2025-02-05</td>
+          <td class="u-last">2025-08-15</td>
+          <td><span class="status">Active</span></td>
+          <td class="actions">
+            <button class="ban"><i class="fa fa-ban"></i></button>
+            <button class="renew"><i class="fa fa-sync"></i></button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- JavaScript -->
+  <!-- Modal -->
+  <div id="modal" class="backdrop" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal" role="document" aria-labelledby="modalTitle">
+      <h3 id="modalTitle"><i class="fa fa-user-plus" style="margin-right:8px"></i> Add User</h3>
+
+      <div class="grid">
+        <input id="mUsername" placeholder="Username (required)" />
+        <input id="mPassword" placeholder="Password (required)" />
+        <input id="mExp" type="date" placeholder="Exp Date (optional)" />
+        <!-- Note: we DO NOT ask for reg date, last seen, or status -->
+      </div>
+
+      <div class="actions">
+        <button id="cancel" class="btn-ghost">Cancel</button>
+        <button id="save" class="btn"><i class="fa fa-plus" style="margin-right:8px"></i>Add user</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const searchInput = document.getElementById("searchInput");
-    const table = document.getElementById("userTable").getElementsByTagName("tbody")[0];
+    // helpers
+    const isoToday = () => {
+      const d = new Date();
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${d.getFullYear()}-${mm}-${dd}`;
+    };
 
-    searchInput.addEventListener("keyup", function() {
-      let filter = searchInput.value.toLowerCase();
-      let rows = table.getElementsByTagName("tr");
+    const NEW_DAYS = 30;
+    function isNewByRegDate(regDateStr){
+      if(!regDateStr) return true;
+      const reg = new Date(regDateStr + 'T00:00:00');
+      if(isNaN(reg)) return true;
+      return (Date.now() - reg.getTime()) <= NEW_DAYS * 24*60*60*1000;
+    }
 
-      for (let i = 0; i < rows.length; i++) {
-        let cells = rows[i].getElementsByTagName("td");
-        let match = false;
+    // elements
+    const modal = document.getElementById('modal');
+    const openModal = document.getElementById('openModal');
+    const cancelBtn = document.getElementById('cancel');
+    const saveBtn = document.getElementById('save');
+    const mUsername = document.getElementById('mUsername');
+    const mPassword = document.getElementById('mPassword');
+    const mExp = document.getElementById('mExp');
+    const tbody = document.querySelector('#userTable tbody');
+    const searchInput = document.getElementById('searchInput');
 
-        for (let j = 0; j < cells.length; j++) {
-          if (cells[j]) {
-            let textValue = cells[j].textContent || cells[j].innerText;
-            if (textValue.toLowerCase().indexOf(filter) > -1) {
-              match = true;
-              break;
-            }
-          }
-        }
+    // show/hide modal
+    function showModal(){
+      modal.classList.add('show'); modal.setAttribute('aria-hidden','false');
+      mUsername.focus();
+    }
+    function hideModal(){
+      modal.classList.remove('show'); modal.setAttribute('aria-hidden','true');
+      mUsername.value = ''; mPassword.value = ''; mExp.value = '';
+    }
 
-        rows[i].style.display = match ? "" : "none";
+    openModal.addEventListener('click', showModal);
+    cancelBtn.addEventListener('click', hideModal);
+    modal.addEventListener('click', e => { if(e.target===modal) hideModal(); });
+    document.addEventListener('keydown', e => { if(e.key==='Escape') hideModal(); });
+
+    // add row client-side (and demonstrate backend POST if present)
+    function addUserRow({username, password, expDate}) {
+      const regDate = isoToday();        // register date = today
+      const lastSeen = 'None';          // last seen = None
+      const status = 'Active';          // status = Active (no ask)
+      const isNew = isNewByRegDate(regDate);
+
+      const tr = document.createElement('tr');
+
+      const tdName = document.createElement('td');
+      tdName.className = 'u-name';
+      const badgeClass = isNew ? 'user-badge' : 'user-badge old';
+      const badgeText = isNew ? 'NEW' : 'OLD';
+      tdName.innerHTML = `${escapeHtml(username)} <span class="${badgeClass}">${badgeText}</span>`;
+
+      const tdPass = document.createElement('td'); tdPass.textContent = password || '••••••';
+      const tdExp = document.createElement('td'); tdExp.className='u-exp'; tdExp.textContent = expDate || '';
+      const tdReg = document.createElement('td'); tdReg.className='u-reg'; tdReg.textContent = regDate;
+      const tdLast = document.createElement('td'); tdLast.className='u-last'; tdLast.textContent = lastSeen;
+      const tdStatus = document.createElement('td'); tdStatus.innerHTML = `<span class="status">${status}</span>`;
+
+      const tdActions = document.createElement('td');
+      tdActions.className = 'actions';
+      tdActions.innerHTML = `<button class="ban" title="Ban"><i class="fa fa-ban"></i></button>
+                             <button class="renew" title="Renew"><i class="fa fa-sync"></i></button>`;
+
+      tr.appendChild(tdName);
+      tr.appendChild(tdPass);
+      tr.appendChild(tdExp);
+      tr.appendChild(tdReg);
+      tr.appendChild(tdLast);
+      tr.appendChild(tdStatus);
+      tr.appendChild(tdActions);
+
+      // insert at top for visibility
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    // basic XSS escape
+    function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;"); }
+
+    // Save click
+    saveBtn.addEventListener('click', async () => {
+      const u = mUsername.value.trim();
+      const p = mPassword.value.trim();
+      const exp = mExp.value ? mExp.value : '';
+
+      if(!u || !p) { alert('Please enter username and password'); return; }
+
+      // Add UI row immediately
+      addUserRow({username:u, password:p, expDate:exp});
+
+      // OPTIONAL: send to backend (if you have server)
+      // Endpoint example: POST /api/add-user with JSON { username,password,expDate, regDate, lastSeen, status }
+      // Uncomment and edit the URL to enable server saving:
+      /*
+      try {
+        await fetch('/api/add-user', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({
+            username: u,
+            password: p,
+            expDate: exp,
+            regDate: new Date().toISOString().slice(0,10),
+            lastSeen: 'None',
+            status: 'Active'
+          })
+        });
+      } catch(err){
+        console.warn('Backend save failed (no server?).', err);
       }
+      */
+
+      hideModal();
     });
+
+    // simple search
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase();
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const text = tr.textContent.toLowerCase();
+        tr.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+
+    // on load: convert existing rows badges (to single-color scheme)
+    (function normalizeExisting(){
+      tbody.querySelectorAll('tr').forEach(tr=>{
+        const regCell = tr.querySelector('.u-reg');
+        const nameCell = tr.querySelector('.u-name');
+        if(!nameCell) return;
+        const reg = regCell ? regCell.textContent.trim() : '';
+        const newFlag = isNewByRegDate(reg);
+        // remove old badge(s)
+        nameCell.querySelectorAll('.user-badge').forEach(e=>e.remove());
+        const span = document.createElement('span');
+        span.className = newFlag ? 'user-badge' : 'user-badge old';
+        span.textContent = newFlag ? 'NEW' : 'OLD';
+        nameCell.appendChild(span);
+        // ensure status cell says Active (as requested)
+        const statusCell = tr.querySelector('.status');
+        if(statusCell) statusCell.textContent = 'Active';
+      });
+    })();
   </script>
 </body>
 </html>
